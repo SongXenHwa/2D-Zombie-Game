@@ -1,0 +1,180 @@
+Rational Design (updated for Assignment 2 and 3)
+
+Assignment 2
+Task1 Zombie attacks 
+In this project, Zombies have an equal chance to bite or punch, and when it bite, zombie has a lower chance of hitting. 
+Because Zombie object uses a list of behaviours to determine which action it does in each term, instead of calling 
+AttackBehaviour, we decide to add a ZombieAttackBehaviour class which decide the attack action the zombie should do in a turn. 
+It extends AttackBehaviour, and should call AttackAction in its getAction function. The zombie's weapon is get inside this class,
+if it's weapon is WeaponItem, it will call the origin constructor in AttackAction, otherwise, it will call the second constructor
+I created in AttackAction, which also passes in the type of weapon, and chance of successful hit. A chanceofPunch function inside 
+ZombieAttackBehaviour class determines the chance of getting teeth attack or punch attack, 
+so it will take zombie parameter in the constructor. The teethIntrinsicWeapon class I created will extend the BasicWeapon class.
+A sideEffect function is added to the itemInterface and override by the teethIntrinsicWeapon. Because sideEffect is called inside 
+attackAction class, this will avoid downcasting the weapon, instead it will check it the weapon is instance of ItemInterface.
+ 
+The AttackAction class should in default store the target, a weapon the current actor is using, a probability equal to 0.5. In this sense, 
+although the ZombieAttackAction class now associates with Weapon and Zombie, if later Zombie has another attack skill with 
+a different chance of trigger or success, methods can be added easily within the ZombieAttackBehaviour class, and not have to creat other 
+AttackActions or behaviours. If later other items have side effect, they can override the SideEffect function. Hence it satisfied the open-close SOLID principle. 
+
+
+The execute function in AttackAction is modified, so that it will decide whether the attack is successful based on the probability, and do extra heal based 
+on that SideEffect boolean. By creating a sideEffect class, if weapon has a sideEffect other than heal, one could just create a weapon that extends the SideEffectWeapon class.
+Hence, this design satisfies the ReD principle. While new attack abilities can be added to the attackAction class, we do not need other action classes which repeats execute() 
+for several times. This reduces code redundencies.
+
+To let zombie be able to pick up a weapon, the ZombiepickUpItemBehaviour class is added to the system. This class should inherit the Behaviour class.
+The pickUpItemBehaviour class will override the getAction function, and returns the new action PickUpItemAction().
+We create a RoarBehaviour class that implements the behaviour class. The RoarBehaviour class have 90% chance to return null. 
+We designed a RoarAction class with the function execute, which will print out "Brainnnnns" message. 
+
+
+Task2
+When the player attacks the zombie, there is a 25% chance of generating one of its limbs on its adjacent locations, and could generate at maximum 4 limbs. We will add the 
+int attributes called ArmNumber and LegNumber to the Zombie class. 
+Zombie won't have Arm or Leg items inside the class, because they only become items when knocked off by the player. We will add the getter and setter method for ArmNumber and 
+LegNumber. 
+Because zombie's probability of punch is halved when it loses one arm, we will add a double attribute chanceofPunch in the Zombie class, and halve it when detecting that the 
+zombie only got 1 arm. When the zombie loses 1 arm, it has 50% chance of dropping any weapon, and if it got no arm, this chance becomes 100%. This is checked when determining 
+which attackaction is performed by the zombie in each turn. The setter method is to be called inside hurt() method in Zombie class, when its limbs 
+are knocked off to the ground. It satisfies encapsulation, for that only Zombie class knows its limbs are knocked off. 
+When a zombie loses one leg, it can only have the HuntBehaviour and WanderBehaviour every second term. Hence, we decide to add a countTerm attribute to the Zombie class. 
+In each play turn we check whether Zombie should have Hunt and Wander behaviours using the counter. 
+Also in this method, when detected a zombie has lost 1 arm, counter start to +1 each term, to decide whether hunt and wander behaviours can be accessed in each term. 
+When a zombie loses both legs, it cannot move at all, so that in this case, we will never consider these behaviours in the zombie's playTurn function, but it can still attack.
+We also check its arm number, if a zombie has no arm, its pick up weapon behaviour is removed.
+
+A hashmap is created to store verb as key and zombie's behaviour as value, added in from the zombie constructor. Hence when we add or delete zombie's behaviours during java runtime, 
+we can check by the key's verb to delete, to avoid deleting by index or using unnecessary downcasting.
+
+In ZombiePickUpBehaviour I only add the item's pickupaction if it is instance of weaponitem. I think it's necessary because we were not allowed to override the GetPickUpItemAction 
+inside the WeaponItem class.
+
+
+Task3
+The crafted weapons available in the game consists of club and mace. It differs as if the player has an arm of the zombie it will be crafted into a club where 
+as if its a leg then it will be a mace instead.The club, mace and BasicWeapon class will all inherit the WeaponItem class. We created the BasicWeapon class that 
+represents either the zombie's arm and legs in its original state.
+Both the BasicArmWeapon and BasicLegWeapon classes inherit the functions from BasicWeapon. BasicArmWeapon and BasicLegWeapon are created when a zombie drops 
+the limbs to the ground. The basicWeapon class override getAllowableActions method. It only add the craftAction 
+if this basic weapon is picked up by the player. The BasicWeapon class also override the getPickUpAction and getDropAction to return our own PlayerPickUpItem and DropPlayerItem action.
+I add the pickup and drop method in the itemInterface. When PlayerPickUpItemAction and drop action are initialized inside the BasicWeapon class, The pickUp state of the item is set to 
+true or false. This ensures that CraftAction is only created when basicweapon is inside the player's inventory.
+
+The CraftAction class extends the Action class. To craft the weapons CraftAction will provide an option for player 
+to select in the menu on whether would they want to craft if an arm or leg is in the inventory. If none is found the option will not be available for user to select. 
+When this action is executed, it will switch the BasicWeapon which is the arm or leg will be switched with the newly crafted weapon, club or mace. The arm or leg which 
+in the inventory will be deleted after being replaced by the crafted weapon. Both crafted weapons will have a higher damage. 
+
+Task4
+We will add a new portable item in the portableItem class which will convert the humans which was kill by the zombie to a zombie. The humans will remain % after getting killed and 
+in the RisingDead class it will turn the dead human from "%" to "Z" after 5 turns. This class will inherit the Zombie Actor so that the dead human which
+turn to zombie will has the same attributes as the zombie.
+
+Task5
+
+We create a new class which inherits from the human class and name it as Farmer. Farmer role has extra choices of actions that it can perfrom. Farmer role will have 
+a display character of 'F'. Sowing behaviour and Harvesting behavior is created to add sowing, fertilising and harvesting actions to the
+farmer. A Crop class which inherits the ground class created to intialise crop as 'c', contains a method to decrease the number of turns remaining by 1 each round and
+change the display character of ripen crop from 'c' to 'r'. Crop class will also have a method called fertilise which decrease the number of turns remaining by the 
+crop by 10. The farmer will have a probability of 33% to sow new crop when it perform SowingBehaviour. If the farmer is standing directly above the crop, 
+Fertilise action in the Sowing Behaviour class will be set as priority and called. Fertilise action which extends Action class will then fertilise the crop using the 
+method in Crop class. If both Fertilise action is invalid and probability is more than 33% , farmer will run the next behaviour. Once the crop ripens and change to
+'r', it can be harvest by farmer through Harvest behaviours inheriting Behaviour class which call HarvestAction or by the player when they are given the option.
+Harvesting creates a new portable item, food, '?' and return the crop position back as dirt. Harvest behaviour's priority is set higher than sowing to prevent 
+overloading ripe crops and no food produce. The difference between the player and farmer harvesting is that player will add the portable item created into its 
+inventory once harvest but farmer will allocate the portable item created onto the ground where the crop was. Eating action is created extended from Action class 
+allow actors to heal by 20 points after eating food. If the actor is the player, it will remove the item from it inventory. For the humans and farmer, actions are 
+called through Eating  behaviour which calls the Eating action class. Humans or farmer will only eat when their life isn't full and when they are standing directly 
+on the item. They would then remove the item from the ground and heal, setting the location of the item back as dirt. Eating is set to the highest priority in the 
+action list of the humans and farmers to ensure that they stay alive longer.
+
+Assignment3
+
+Going to Town
+	We created a new map called town which is a second map and a new class call TownItem which acts as a vehicle and allow player to transfer between map. The second map is
+	created in the application class itself below the first map, map. The class TownItem inherits from item class. When player interact with the object, it will transfer the
+	player to the first/second map depending on the current map of the player. WHile the player is in the other map, other actors and objects in the other map will still be
+	running in the background while player is in another map.
+
+	
+Shotgun and Rifle
+	Shotgun
+		We created a Shotgun class that extends WeaponItem class. This class has a pickUp boolean variable which is set to false in default and becomes true when player
+		pick it up. Only when it's picked up, player can get its allowable action called ShotgunAction. But until the player chose a direction inside the sub-menu, the direction will be set 
+		to -1 in defualt. Shotgun has an initial damage of 10 and a range damage of 20. When player chose to attack a target with this weapon as the first in their inventory, 
+		they whack them with the barrel. Only when player chose to use the shotgun, a sub-menu will urge player to choose a direction. Then the shotgun sends 90 degrees 
+		cone of pellets out within 3 squares, and any actors has a 75% chance to take 20 range damages. I did a bonus mark for the shotgun to be able to destroy fence. 
+		We created a ShotgunAction class which is initialized by the shotgun class in its getAllowableAction() function. This class need to associates with shotgun class in order to 
+		get the shotgun's range damage. The ShotgunAction class has a directionInt integer initially set to -1. It has the getNextActions() function that override the one 
+		defined in ItemInterface. This function generates the sub-menu if it doesn't return null. This function made the system more extensible, as other item could also use it to
+		generates their own sub-menus. In the ShotgunAction class in particular, this function will return 8 Shotgun actions with directionInt set by integer 0-7 which indicates the 8
+		directions. The directions are unlikely to be modified later, so it justifies why we represented them by integers, and search for the hard-coded string of directions within
+		the array using integer as the index. 
+		We created a private second constructor in the ShotgunAction class that takes in the direction. This is chosen by the player in the submenu. Therefore when this action executes,
+		the class knows which direction to shoot at. When shoot happens, we implemented an algorithm to find the locations within effect, so that if later we decide to modify the range to
+		other number instead of currently 3 squares, we can do it by just changing one variable. We defined canbeDestroyed() inside GroundInterface that returns false in default, and in
+		the fence class we override the function to return true. For each location within the damage range, we check if the ground can be destroy and set it to dirt if it can be destroyed.
+	Rifle
+		We created a Rifle class that extends WeaponItem class. This class has a pickUp boolean variable which is set to false in default and becomes true when player
+		pick it up. Only when it's picked up, player can get its allowable action called AttackAction. Until the first sub-menu jumped out to let the player chose a target,
+		the target inside RifleAttackAction is set to null. And only when the second sub-menu let the player chose to shoot instantly or aim at the target, its waitTurn will be initialized
+		to the waitTurn of the lastAction +1, and instantShoot is changed from -1 in default to 0 if player aims for a turn, or 1 if player want to shoot instantly. Therefore our RifleAttackAction
+		class has three constructors. The first and public one is called inside rifle class, with only the rifle itself as the parameter. The second private constructor is called inside
+		RifleAttackAction itself in its getNextActions function, when the sub-menu let player chose a target. This constructor will set the target in additional. The third private constructor
+		is called inside the getSecondNextActions function inside RifleAttackAction, when the second sub-menu let player chose to shoot or wait. getSecondNextActions() is defined inside
+		ActionInterface. Its parameters are the gamemap, the player actor and the last action of player.
+		RifleAttackAction associates with rifle itself to get its shot damage, and the target actor in order to get its hitpoint to apply instant kill, and to check whether the same target
+		is selected in the last action. 
+		In addition, we defined the getwaitTurn(), getTarget() and getHitpoint() function inside ActionInterface. getTarget() in default is set to null. We override them inside RifleAttackAction 
+		to get the wait turn in the last action and apply +1 to it in the current RifleAttackAction. We get target from the last action to compare with the current target, in order to know if 
+		the same target is selected, and we apply the corresponding damage to the target. We use lastAction.getHitpoint() to check if the player's getHitpoint differs in the current and last 
+		turn, for deciding whether the concentration is losed in this turn. If lastAction.getTarget() is null, meaning the lastAction is not using rifle, our program will lose concentration
+		as well. 
+		Because the rifle could instantly kill the target after two rounds of aiming, we don't show the option to aim after two rounds. 
+		We let rifle to only able to attack actor who has the UNDEAD zombie camability. For some of these actors eg. Mambo Marie,
+		we do not just remove it from the map because Mambo Marie use isConscious(ie. hitpoint<=0) to detect if she can come back.
+		So we defined the getHitpoint() function inside ActorInterface, and override it in Mambo Marie to return her hitpoint. Hence,
+		we let the rifle to hurt its hitpoint and then remove the target from the map to avoid actors like Mambo to keep coming back.
+		Thus, if later we decide to add another character like Mambo Marie, we do not need to change the RifleAttackAction class, making 
+		this program easy to maintain.
+	For the bullet of both guns, instead of putting the item inside player's inventory and needing to remove them by iterating through
+	the inventory using downcasting, we let them represented by integers in the player class. We created the RifleBulletBox and ShotgunBulletBox
+	class, each has a different number of ammunition when initialized on the map. Their getPickUp and getDrop functions return the new playerPickUpItemAction
+	and PlayerDropItemAction we created in assignment2. We defined a changePlayerAttribute() function inside ActorInterface which returns null in default, and
+	we override it inside the bulletbox classes, to set the actors relative bullet attribute to add the bullet number. Hence we also defined the set ammo number
+	and get ammo number functions inside the ActorInterface, override them in the player class.
+	Because the RifleAttackAction and ShotgunAction don't know who's the actor until it executes, and to reduce dependency on actors, we only check if the actor
+	has any bullet of rifle or shotgun when it executes. Hence, in our program, you may find the actor aim for two turns and shoot, and until then the program
+	would tell you that you has no bullet. We decide to let player remember how many bullets they have to increase the difficulty.
+
+
+End game
+	To add the quit game option in the menu, we created a quit game action and added to player's playturn method. When executed, it will print out "Player quited 
+	the game, game over" and do System.exit(0).
+	To detect whether player win or lose, we created a NewWorld class that overrides the World class. We override the stillRunning() method, and we iterate all
+	actors in actorLocations, using zombie capability to detect if there's still zombie or human left. Because mambo marie is created inside the player
+	class, and player class stores whether it is killed, we defined a HaveKilledMambo() function in ActorInterface that returns false in default, and if player killed
+	Mambo Marie, it returns true. Inside the stillRunning() function in newWorld, we check player.haveKilledMambo() to see if Mambo has been killed. And only when she
+	died and no zombie actor left, we let the player win. 
+
+Mambo Marie
+	To create Mambo Marie, a new class is add which inherits ZombieActor as Mambo Marie is similiar to a zombie just that it has an ability to spawn zombies. Mambo Marie has a capability of UNDEAD
+	and a hitpoint of 150. For its ability, chanting to spawn 5 zombies every 10 turn, we add two class ChantingBehaviour which inherits Behaviour and Chanting Action which inherits Actions. Chanting
+	Action consists of the mambo marie spawning the 5 zombies in random locations in the map which will be called chanting behaviour. In chanting behaviour, it checks the number of turn to ensure that
+	the number of turns is 10 before spawning. The mambo marie has only a probabiltiy of 0.05% to spawn each round and after 30 turns it will vanish till the next probability is below 0.05. The mambo
+	spawining is done in the new world class.
+	
+Bonus mark
+	-shotgun can destroy fence
+	
+	Wood
+		To get wood, we created a new class call ChopTreeAction which inherits the Action class.This class will search if there is a tree nearby and prompt user in menu if they would like to chop it.
+		Once the tree is chop the location of tree will revert to original dirt and it will create new portable item,'W' which are wood. Each tree is able to produce to 2 wood.
+
+	Traps
+		For traps, 3 classes are created, Trap inherits Ground, SettingTrap Action and RepairTrapAction inherits Action. To have the option to set traps, it will need a minimum of 4 woods to create it.
+		It will set the ground to 'O' and each trap can only be used once (1 zombie) then it will be deactivate and change the trap to 'O'. Once trap is deactivated, if player is near it, they could repair it
+		for half price, 2 woods and it will set the trap back to 'O'. 
+	

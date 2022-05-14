@@ -1,0 +1,26 @@
+Assignment 3: 
+
+Shotgun and Rifle code(13/6/2020)
+- Tina Li
+
+End game code(13/6/2020)
+- Tina Li
+
+Mambo Marie code(13/6/2020)
+- Song Xen Hwa
+
+Go to Town code(13/6/2020)
+- Song Xen Hwa
+
+tests&debug (14/6/2020)
+- Tina Li
+- Song Xen Hwa
+
+Recommendations for change to the game engine, bonus marks, sequence diagram(14/6/2020)
+-Tina Li
+- Song Xen Hwa
+
+
+Agreed by:
+- Tina Li
+- Song Xen Hwa

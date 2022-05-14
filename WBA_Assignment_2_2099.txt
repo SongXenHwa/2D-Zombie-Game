@@ -1,0 +1,35 @@
+Assignment 2: 
+
+Zombie attacks code(21/9/2020)
+- Tina Li
+
+Beating up the Zombies code(21/9/2020)
+- Tina Li
+
+Crafting Weapons code(21/9/2020)
+- Tina Li
+
+Rising from the dead code(21/9/2020)
+- Song Xen Hwa
+
+Farmers and food code(21/9/2020)
+- Song Xen Hwa
+
+Zombie attacks tests&debug (22/9/2020)
+- Tina Li
+
+Beating up the Zombies code test&debug(22/9/2020)
+- Tina Li
+
+Crafting Weapons test&debug(22/9/2020)
+- Tina Li -Song Xen Hwa
+
+Rising from the dead test&debug(22/9/2020)
+- Song Xen Hwa
+
+Farmers and food test&debug(22/9/2020)
+- Song Xen Hwa
+
+Agreed by:
+- Tina Li
+- Song Xen Hwa
